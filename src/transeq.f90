@@ -205,6 +205,91 @@ contains
        ti2(:,:,:) = ti2(:,:,:) + uz2(:,:,:) * uy2(:,:,:) * te2(:,:,:)
     endif
 
+    !DIFFUSIVE TERMS IN Y
+    if (itimescheme.ne.7) then
+       !-->for ux
+       call deryy (ta2,ux2,di2,sy,sfyp,ssyp,swyp,ysize(1),ysize(2),ysize(3),1)
+       if (istret.ne.0) then
+          !call dery (te2,ux2,di2,sy,ffyp,fsyp,fwyp,ppy,ysize(1),ysize(2),ysize(3),1)
+          do k = 1,ysize(3)
+             do j = 1,ysize(2)
+                do i = 1,ysize(1)
+                   ta2(i,j,k) = ta2(i,j,k)*pp2y(j)-pp4y(j)*td2(i,j,k)
+                enddo
+             enddo
+          enddo
+       endif
+ 
+       !-->for uy
+       call deryy (tb2,uy2,di2,sy,sfy,ssy,swy,ysize(1),ysize(2),ysize(3),0)
+       if (istret.ne.0) then
+          !call dery (tf2,uy2,di2,sy,ffy,fsy,fwy,ppy,ysize(1),ysize(2),ysize(3),0)
+          do k = 1,ysize(3)
+             do j = 1,ysize(2)
+                do i = 1,ysize(1)
+                   tb2(i,j,k) = tb2(i,j,k)*pp2y(j)-pp4y(j)*te2(i,j,k)
+                enddo
+             enddo
+          enddo
+       endif
+ 
+       !-->for uz
+       call deryy (tc2,uz2,di2,sy,sfyp,ssyp,swyp,ysize(1),ysize(2),ysize(3),1)
+       if (istret.ne.0) then
+          !call dery (tj2,uz2,di2,sy,ffyp,fsyp,fwyp,ppy,ysize(1),ysize(2),ysize(3),1)
+          do k = 1,ysize(3)
+             do j = 1,ysize(2)
+                do i = 1,ysize(1)
+                   tc2(i,j,k) = tc2(i,j,k)*pp2y(j)-pp4y(j)*tf2(i,j,k)
+                enddo
+             enddo
+          enddo
+       endif
+    else !Semi-implicit
+       if (istret.ne.0) then
+ 
+          !-->for ux
+          !call dery (te2,ux2,di2,sy,ffyp,fsyp,fwyp,ppy,ysize(1),ysize(2),ysize(3),1)
+          do k=1,ysize(3)
+             do j=1,ysize(2)
+                do i=1,ysize(1)
+                   ta2(i,j,k)=-pp4y(j)*td2(i,j,k)
+                enddo
+             enddo
+          enddo
+          !-->for uy
+          !call dery (tf2,uy2,di2,sy,ffy,fsy,fwy,ppy,ysize(1),ysize(2),ysize(3),0)
+          do k=1,ysize(3)
+             do j=1,ysize(2)
+                do i=1,ysize(1)
+                   tb2(i,j,k)=-pp4y(j)*te2(i,j,k)
+                enddo
+             enddo
+          enddo
+          !-->for uz
+          !call dery (tj2,uz2,di2,sy,ffyp,fsyp,fwyp,ppy,ysize(1),ysize(2),ysize(3),1)
+          do k=1,ysize(3)
+             do j=1,ysize(2)
+                do i=1,ysize(1)
+                   tc2(i,j,k)=-pp4y(j)*tf2(i,j,k)
+                enddo
+             enddo
+          enddo
+ 
+       endif
+    endif
+
+    ! Add diffusive terms to convective of y-pencil
+    if (ilmn) then
+      tg2(:,:,:) = mu2(:,:,:) * xnu*ta2(:,:,:) - half * tg2(:,:,:)
+      th2(:,:,:) = mu2(:,:,:) * xnu*tb2(:,:,:) - half * th2(:,:,:)
+      ti2(:,:,:) = mu2(:,:,:) * xnu*tc2(:,:,:) - half * ti2(:,:,:)
+    else
+      tg2(:,:,:) = xnu*ta2(:,:,:) - half * tg2(:,:,:)
+      th2(:,:,:) = xnu*tb2(:,:,:) - half * th2(:,:,:)
+      ti2(:,:,:) = xnu*tc2(:,:,:) - half * ti2(:,:,:)
+    endif
+   
     call transpose_y_to_z(ux2,ux3)
     call transpose_y_to_z(uy2,uy3)
     call transpose_y_to_z(uz2,uz3)
@@ -282,95 +367,10 @@ contains
     call transpose_z_to_y(te3,te2)
     call transpose_z_to_y(tf3,tf2)
 
-    ! Convective terms of y-pencil (tg2,th2,ti2) and sum of convective and diffusive terms of z-pencil (td2,te2,tf2) are now in tg2, th2, ti2 (half for skew-symmetric)
-    tg2(:,:,:) = td2(:,:,:) - half * tg2(:,:,:)
-    th2(:,:,:) = te2(:,:,:) - half * th2(:,:,:)
-    ti2(:,:,:) = tf2(:,:,:) - half * ti2(:,:,:)
-
-    !DIFFUSIVE TERMS IN Y
-    if (itimescheme.ne.7) then
-       !-->for ux
-       call deryy (td2,ux2,di2,sy,sfyp,ssyp,swyp,ysize(1),ysize(2),ysize(3),1)
-       if (istret.ne.0) then
-          call dery (te2,ux2,di2,sy,ffyp,fsyp,fwyp,ppy,ysize(1),ysize(2),ysize(3),1)
-          do k = 1,ysize(3)
-             do j = 1,ysize(2)
-                do i = 1,ysize(1)
-                   td2(i,j,k) = td2(i,j,k)*pp2y(j)-pp4y(j)*te2(i,j,k)
-                enddo
-             enddo
-          enddo
-       endif
-
-       !-->for uy
-       call deryy (te2,uy2,di2,sy,sfy,ssy,swy,ysize(1),ysize(2),ysize(3),0)
-       if (istret.ne.0) then
-          call dery (tf2,uy2,di2,sy,ffy,fsy,fwy,ppy,ysize(1),ysize(2),ysize(3),0)
-          do k = 1,ysize(3)
-             do j = 1,ysize(2)
-                do i = 1,ysize(1)
-                   te2(i,j,k) = te2(i,j,k)*pp2y(j)-pp4y(j)*tf2(i,j,k)
-                enddo
-             enddo
-          enddo
-       endif
-
-       !-->for uz
-       call deryy (tf2,uz2,di2,sy,sfyp,ssyp,swyp,ysize(1),ysize(2),ysize(3),1)
-       if (istret.ne.0) then
-          call dery (tj2,uz2,di2,sy,ffyp,fsyp,fwyp,ppy,ysize(1),ysize(2),ysize(3),1)
-          do k = 1,ysize(3)
-             do j = 1,ysize(2)
-                do i = 1,ysize(1)
-                   tf2(i,j,k) = tf2(i,j,k)*pp2y(j)-pp4y(j)*tj2(i,j,k)
-                enddo
-             enddo
-          enddo
-       endif
-    else !Semi-implicit
-       if (istret.ne.0) then
-
-          !-->for ux
-          call dery (te2,ux2,di2,sy,ffyp,fsyp,fwyp,ppy,ysize(1),ysize(2),ysize(3),1)
-          do k=1,ysize(3)
-             do j=1,ysize(2)
-                do i=1,ysize(1)
-                   td2(i,j,k)=-pp4y(j)*te2(i,j,k)
-                enddo
-             enddo
-          enddo
-          !-->for uy
-          call dery (tf2,uy2,di2,sy,ffy,fsy,fwy,ppy,ysize(1),ysize(2),ysize(3),0)
-          do k=1,ysize(3)
-             do j=1,ysize(2)
-                do i=1,ysize(1)
-                   te2(i,j,k)=-pp4y(j)*tf2(i,j,k)
-                enddo
-             enddo
-          enddo
-          !-->for uz
-          call dery (tj2,uz2,di2,sy,ffyp,fsyp,fwyp,ppy,ysize(1),ysize(2),ysize(3),1)
-          do k=1,ysize(3)
-             do j=1,ysize(2)
-                do i=1,ysize(1)
-                   tf2(i,j,k)=-pp4y(j)*tj2(i,j,k)
-                enddo
-             enddo
-          enddo
-
-       endif
-    endif
-
-    ! Add diffusive terms of y-pencil to convective and diffusive terms of y- and z-pencil
-    if (ilmn) then
-      ta2(:,:,:) = mu2(:,:,:) * xnu*td2(:,:,:) + tg2(:,:,:)
-      tb2(:,:,:) = mu2(:,:,:) * xnu*te2(:,:,:) + th2(:,:,:)
-      tc2(:,:,:) = mu2(:,:,:) * xnu*tf2(:,:,:) + ti2(:,:,:)
-    else
-      ta2(:,:,:) = xnu*td2(:,:,:) + tg2(:,:,:)
-      tb2(:,:,:) = xnu*te2(:,:,:) + th2(:,:,:)
-      tc2(:,:,:) = xnu*tf2(:,:,:) + ti2(:,:,:)
-    endif
+    ! Add convective and diffusive terms of y- and z-pencil
+    ta2(:,:,:) = tg2(:,:,:) + td2(:,:,:)
+    tb2(:,:,:) = th2(:,:,:) + te2(:,:,:)
+    tc2(:,:,:) = ti2(:,:,:) + tf2(:,:,:)
 
     !WORK X-PENCILS
     call transpose_y_to_x(ta2,ta1)
