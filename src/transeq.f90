@@ -101,6 +101,7 @@ contains
     use var, only : rho3,ux3,uy3,uz3,ta3,tb3,tc3,td3,te3,tf3,tg3,th3,ti3,di3
     use var, only : sgsx1,sgsy1,sgsz1
     use les, only : compute_SGS
+    use ibm, only : lagpolx,lagpoly,lagpolz
 
     use case, only : momentum_forcing
 
@@ -117,6 +118,13 @@ contains
 
 
     integer :: i,j,k,is
+    
+    ! IBM - ToDo: create method to perform lagpol in one call
+    if(iibm.eq.2) then
+        call lagpolx(ux1)
+        call lagpolx(uy1)
+        call lagpolx(uz1)
+    endif
 
     !SKEW SYMMETRIC FORM
     !WORK X-PENCILS
@@ -168,6 +176,13 @@ contains
        rho2(:,:,:) = one
     endif
 
+    ! IBM - ToDo: create method to perform lagpol in one call
+    if(iibm.eq.2) then
+      call lagpoly(ux2)
+      call lagpoly(uy2)
+      call lagpoly(uz2)
+    endif
+
     !WORK Y-PENCILS
     if (ilmn) then
       td2(:,:,:) = rho2(:,:,:) * ux2(:,:,:) * uy2(:,:,:)
@@ -208,6 +223,13 @@ contains
     call transpose_y_to_z(ux2,ux3)
     call transpose_y_to_z(uy2,uy3)
     call transpose_y_to_z(uz2,uz3)
+
+    ! IBM - ToDo: create method to perform lagpol in one call
+    if(iibm.eq.2) then
+      call lagpolz(ux3)
+      call lagpolz(uy3)
+      call lagpolz(uz3)
+    endif
 
     !WORK Z-PENCILS
     if (ilmn) then
@@ -707,6 +729,7 @@ contains
     use variables
     use decomp_2d
     use case, only : scalar_forcing
+    use ibm, only : lagpolx,lagpoly,lagpolz
 
     use var, only : ta1,tb1,tc1,td1,di1
     use var, only : rho2,uy2,ta2,tb2,tc2,td2,te2,di2
@@ -743,6 +766,9 @@ contains
     endif
 
     xalpha = xnu/schmidt
+    
+    ! IBM - ToDo: create method to perform lagpol in one call
+    if(iibm.eq.2) call lagpolx(phi1)
 
     !X PENCILS
     if (skewsc) ta1(:,:,:) = ux1(:,:,:) * phi1(:,:,:)
@@ -771,6 +797,9 @@ contains
     ta1(:,:,:) = xalpha*ta1(:,:,:) - tb1(:,:,:)
 
     call transpose_x_to_y(phi1(:,:,:),td2(:,:,:))
+
+    ! IBM - ToDo: create method to perform lagpol in one call
+    if(iibm.eq.2) call lagpoly(td2)
 
     !Y PENCILS
     if (skewsc) tb2(:,:,:) = uy2(:,:,:) * td2(:,:,:)
@@ -807,7 +836,10 @@ contains
     tc2(:,:,:) = xalpha*ta2(:,:,:) - tb2(:,:,:)
 
     call transpose_y_to_z(td2(:,:,:),td3(:,:,:))
-
+    
+    ! IBM - ToDo: create method to perform lagpol in one call
+    if(iibm.eq.2) call lagpolz(td3)
+    
     !Z PENCILS
     if (skewsc) ta3(:,:,:) = uz3(:,:,:) * td3(:,:,:)
     if (evensc) then
