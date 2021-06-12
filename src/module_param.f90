@@ -277,10 +277,14 @@ module param
   integer :: iscalar,nxboite,istat,iread,iadvance_time,irotation,iibm
   integer :: npif,izap
   integer :: ivisu, ipost, initstat
-  real(mytype) :: xlx,yly,zlz,dx,dy,dz,dx2,dy2,dz2,t,xxk1,xxk2,t0
-  real(mytype) :: dt,re,xnu,init_noise,inflow_noise,u1,u2,angle,anglex,angley
+  real(mytype) :: xlx,yly,zlz,dx,dy,dz,dx2,dy2,dz2,xxk1,xxk2,t0
+  real(mytype) :: re,xnu,init_noise,inflow_noise,u1,u2,angle,anglex,angley
   real(mytype) :: wrotation,ro
   real(mytype) :: dens1, dens2
+  real(mytype), save :: t,dt
+  
+  ! Snapshot
+  real(mytype), save :: toutput, toutlast
 
   !! Channel flow
   integer :: icpg, icfr
@@ -290,7 +294,13 @@ module param
   integer :: ifirstder,isecondder,ipinter
 
   !! CFL_diffusion parameter
-  real(mytype) :: cfl_diff_x,cfl_diff_y,cfl_diff_z,cfl_diff_sum
+  real(mytype), save :: cfl_diff_x,cfl_diff_y,cfl_diff_z,cfl_diff_sum
+
+  !! Dynamic time step
+  integer :: idyndt, fdyndt
+  real(mytype) :: dtstep, cfl_crit, diff_crit, dtmax
+  real(mytype), save :: cflx_max, cfly_max, cflz_max
+
 
   !!
   real(mytype) :: xcst, xcst_pr

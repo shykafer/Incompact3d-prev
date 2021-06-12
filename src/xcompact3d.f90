@@ -37,6 +37,7 @@ program xcompact3d
 
   use transeq, only : calculate_transeq_rhs
   use time_integrators, only : int_time
+  use time_step, only : time_stepping
   use navier, only : velocity_to_momentum, momentum_to_velocity, pre_correc, &
        calc_divu_constraint, solve_poisson, cor_vel
   use tools, only : restart, simu_stats
@@ -46,9 +47,8 @@ program xcompact3d
   call init_xcompact3d()
 
   do itime=ifirst,ilast
-     !t=itime*dt
-     t=t0 + (itime0 + itime + 1 - ifirst)*dt
-     call simu_stats(2)
+   call time_stepping(itime,ux1,uy1,uz1,ep1)   
+   call simu_stats(2)
 
     do itr=1,iadvance_time
 
@@ -114,6 +114,9 @@ subroutine init_xcompact3d()
 
   use genepsi, only : genepsi3d, epsi_init
   use ibm, only : body
+  
+  use time_integrators, only : set_time_int_coefficient
+  use time_step, only : time_stepping_init
 
   implicit none
 
@@ -146,6 +149,7 @@ subroutine init_xcompact3d()
   endif
 
   call parameter(InputFN)
+  call set_time_int_coefficient()
 
   call decomp_2d_init(nx,ny,nz,p_row,p_col)
   call init_coarser_mesh_statS(nstat,nstat,nstat,.true.)    !start from 1 == true
@@ -205,6 +209,7 @@ subroutine init_xcompact3d()
   call test_speed_min_max(ux1,uy1,uz1)
   if (iscalar==1) call test_scalar_min_max(phi1)
 
+  call time_stepping_init()
   call simu_stats(1)
 
   call calc_divu_constraint(divu3, rho1, phi1)

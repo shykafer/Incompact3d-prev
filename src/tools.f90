@@ -304,7 +304,7 @@ contains
        if (nrank.eq.0) then
          write(filename,"('restart',I7.7,'.info')") itime
          write(fmt2,'("(A,I16)")')
-         write(fmt3,'("(A,F16.4)")')
+         write(fmt3,'("(A,F16.6)")')
          write(fmt4,'("(A,F16.12)")')
          !
          open (111,file=filename,action='write',status='replace')
@@ -386,6 +386,7 @@ contains
          read(111, nml=Time)
          close(111)
          t0 = tfield
+         t = t0
          itime0 = 0
        else
          t0 = zero
@@ -537,15 +538,16 @@ contains
     !! DESCRIPTION: Computes CFl number for stretched mesh
     !!      AUTHOR: Kay Schäfer
   !##################################################################
-  subroutine compute_cfl(ux,uy,uz)
-    use param, only : dx,dy,dz,dt,istret
+  subroutine compute_cfl(ux,uy,uz,iwait)
+    use param, only : dx,dy,dz,dt,istret,cflx_max,cfly_max,cflz_max
+    use param, only : zero, one
     use decomp_2d, only : nrank, mytype, xsize, xstart, xend, real_type
     use mpi
     use variables, only : dyp
 
     implicit none
 
-    integer      :: code, i,j,k,jloc
+    integer      :: code, request, i,j,k,jloc,iwait
     real(mytype) :: value_x, value_y, value_z, value_sum
     real(mytype) :: maxvalue_sum, maxvalue_sum_out, maxvalue_x, maxvalue_y,  maxvalue_z
     real(mytype),dimension(xsize(1),xsize(2),xsize(3)) :: ux,uy,uz
@@ -586,14 +588,27 @@ contains
 
     cflmax_in =  (/maxvalue_x, maxvalue_y, maxvalue_z, maxvalue_sum/)
 
-    call    MPI_REDUCE(cflmax_in,cflmax_out,4,real_type,MPI_MAX,0,MPI_COMM_WORLD,code)
+    if (iwait.eq.0) then
+      call MPI_IREDUCE(cflmax_in,cflmax_out,4,real_type,MPI_MAX,0,MPI_COMM_WORLD,request,code)
 
-    if (nrank.eq.0) then
-      write(*,"(' CFL_x                  : ',F17.8)") cflmax_out(1)*dt
-      write(*,"(' CFL_y                  : ',F17.8)") cflmax_out(2)*dt
-      write(*,"(' CFL_z                  : ',F17.8)") cflmax_out(3)*dt
-      !write(*,"(' CFL_sum                : ',F17.8)") cflmax_out(4)*dt
+      if (nrank.eq.zero) then
+        call MPI_WAIT(request,MPI_STATUS_IGNORE,code)
+        write(*,"(' CFL_x                  : ',F17.8)") cflmax_out(1)*dt
+        write(*,"(' CFL_y                  : ',F17.8)") cflmax_out(2)*dt
+        write(*,"(' CFL_z                  : ',F17.8)") cflmax_out(3)*dt
+        !write(*,"(' CFL_sum                : ',F17.8)") cflmax_out(4)*dt
+      else 
+        call MPI_WAIT(request,MPI_STATUS_IGNORE,code)
+      end if
+    else if (iwait.eq.1) then 
+      call MPI_ALLREDUCE(cflmax_in,cflmax_out,4,real_type,MPI_MAX,MPI_COMM_WORLD,code)
+
+      !call MPI_WAIT(request,MPI_STATUS_IGNORE,code)
+      cflx_max = cflmax_out(1)*dt
+      cfly_max = cflmax_out(2)*dt
+      cflz_max = cflmax_out(3)*dt
     end if
+
   end subroutine compute_cfl
   !##################################################################
   !##################################################################

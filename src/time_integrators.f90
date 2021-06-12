@@ -35,9 +35,108 @@ module time_integrators
   implicit none
 
   private
-  public :: int_time
+  public :: int_time, set_time_int_coefficient
 
 contains
+  !############################################################################
+  subroutine set_time_int_coefficient()
+    use decomp_2d, only : mytype
+    use param, only : adt,bdt,cdt,ddt,gdt,dt
+    use param, only : ntime,nrhotime,itimescheme,iadvance_time
+    use param, only : zero, one
+ 
+    implicit none 
+
+    !
+    adt(:)=zero ; bdt(:)=zero ; cdt(:)=zero ; gdt(:)=zero
+    if (itimescheme.eq.1) then ! Euler
+       iadvance_time=1
+       adt(1)=1.0_mytype*dt
+       bdt(1)=0.0_mytype*dt
+       gdt(1)=adt(1)+bdt(1)
+       gdt(3)=gdt(1)
+ 
+       ntime = 1
+       nrhotime = 2
+    elseif (itimescheme.eq.2) then ! AB2
+       iadvance_time=1
+       adt(1)=1.5_mytype*dt
+       bdt(1)=-0.5_mytype*dt
+       gdt(1)=adt(1)+bdt(1)
+       gdt(3)=gdt(1)
+ 
+       ntime = 2
+       nrhotime = 3
+    elseif (itimescheme.eq.3) then ! AB3
+       iadvance_time=1
+       adt(1)= (23._mytype/12._mytype)*dt
+       bdt(1)=-(16._mytype/12._mytype)*dt
+       cdt(1)= ( 5._mytype/12._mytype)*dt
+       gdt(1)=adt(1)+bdt(1)+cdt(1)
+       gdt(3)=gdt(1)
+ 
+       ntime = 3
+       nrhotime = 4
+    elseif(itimescheme==4) then  ! AB4
+       iadvance_time=1
+       adt(1)=(55.0_mytype/24.0_mytype)*dt
+       bdt(1)=-(59.0_mytype/24.0_mytype)*dt
+       cdt(1)=(37.0_mytype/24.0_mytype)*dt
+       ddt(1)=-(9.0_mytype/24.0_mytype)*dt
+       gdt(1)=adt(1)+bdt(1)+cdt(1)+ddt(1)
+       gdt(3)=gdt(1)
+ 
+       ntime = 4
+       nrhotime = 5
+    elseif(itimescheme.eq.5) then !RK3
+       iadvance_time=3
+       adt(1)=(8._mytype/15._mytype)*dt
+       bdt(1)=0._mytype
+       gdt(1)=adt(1)
+       adt(2)=(5._mytype/12._mytype)*dt
+       bdt(2)=(-17._mytype/60._mytype)*dt
+       gdt(2)=adt(2)+bdt(2)
+       adt(3)=(3._mytype/4._mytype)*dt
+       bdt(3)=(-5._mytype/12._mytype)*dt
+       gdt(3)=adt(3)+bdt(3)
+ 
+       ntime = 2
+       nrhotime = 3
+    elseif(itimescheme.eq.6) then !RK4 Carpenter and Kennedy
+       iadvance_time=5
+       adt(1)=0.0_mytype
+       adt(2)=-0.4178904745_mytype
+       adt(3)=-1.192151694643_mytype
+       adt(4)=-1.697784692471_mytype
+       adt(5)=-1.514183444257_mytype
+       bdt(1)=0.1496590219993_mytype
+       bdt(2)=0.3792103129999_mytype
+       bdt(3)=0.8229550293869_mytype
+       bdt(4)=0.6994504559488_mytype
+       bdt(5)=0.1530572479681_mytype
+       gdt(1)=0.1496590219993_mytype*dt
+       gdt(2)=0.220741935365_mytype*dt
+       gdt(3)=0.25185480577_mytype*dt
+       gdt(4)=0.33602636754_mytype*dt
+       gdt(5)=0.041717869325_mytype*dt
+ 
+       ntime = 2
+       nrhotime = 5 ! (A guess)
+ 
+    elseif(itimescheme.eq.7) then !Semi-implicit
+       iadvance_time=1
+       adt(1)= (23./12.)*dt
+       bdt(1)=-(16./12.)*dt
+       cdt(1)= ( 5./12.)*dt
+       gdt(1)=adt(1)+bdt(1)+cdt(1)
+       gdt(3)=gdt(1)
+ 
+       ntime = 3
+       nrhotime = 4
+    endif
+ 
+  end subroutine set_time_int_coefficient
+  !############################################################################
 
   subroutine intt(var1,dvar1,forcing1)
 
@@ -442,3 +541,83 @@ contains
   endsubroutine int_time_temperature
 
 end module time_integrators
+!##################################################################
+!##################################################################
+module time_step
+
+   implicit none
+ 
+   private
+   public :: time_stepping_init, time_stepping
+
+   contains
+   !############################################################################
+   subroutine time_stepping_init()
+      use param, only : cfl_diff_sum, cfl_diff_x, cfl_diff_y, cfl_diff_z
+      use param, only : dt, dtmax, diff_crit, dtstep
+      use decomp_2d, only : mytype, nrank
+      implicit none
+      
+      real(mytype) :: diffmax
+
+      ! Check diffusion number -> maximum time step
+      diffmax = maxval((/cfl_diff_x, cfl_diff_y, cfl_diff_z /))
+      dtmax = floor((diff_crit/diffmax * dt)/dtstep)*dtstep  ! Control round off errors by dtstep
+
+      if (nrank==0) write(*,"(' dtmax             : ',F17.10)") dtmax
+      !write(*,"(' rank',I4,' dtmax             : ',F17.10)") nrank,dtmax
+
+   end subroutine time_stepping_init
+   !##################################################################
+   !############################################################################
+   !!
+   !!  SUBROUTINE: time_stepping
+   !! DESCRIPTION: Sets new time step for fixed or dynamic time step.
+   !!      AUTHOR: Kay Schäfer
+   !!
+   !############################################################################
+   subroutine time_stepping(itime,ux1,uy1,uz1,ep1)
+      use tools, only : compute_cfl
+      use time_integrators, only : set_time_int_coefficient
+
+      use param, only : itime0, t0, t, dt, ifirst, idyndt, fdyndt, iibm
+      use param, only : cfl_crit, diff_crit, dtmax, dtstep, cflx_max, cfly_max, cflz_max
+      use param, only : zero, one
+      use var, only : xsize
+      use decomp_2d, only : mytype, nrank
+      use ibm, only : body
+      
+      implicit none 
+
+      !! INPUTS
+      integer :: itime
+      real(mytype), dimension(xsize(1),xsize(2),xsize(3)) :: ux1,uy1,uz1,ep1
+
+      real(mytype) :: cflmax
+      
+      if (idyndt.eq.zero) then 
+         t=t0 + (itime0 + itime + 1 - ifirst)*dt
+      else if (idyndt.eq.one) then 
+         if ((mod(itime, fdyndt).eq.0).or.(itime.eq.ifirst)) then
+            ! In case of IBM set values in body to zero
+            if (iibm.ne.0) call body(ux1,uy1,uz1,ep1)
+
+            ! compute CFL numbers
+            call compute_cfl(ux1,uy1,uz1,1)
+            cflmax = maxval((/cflx_max, cfly_max, cflz_max /))
+
+            dt = floor((cfl_crit/cflmax * dt)/dtstep)*dtstep  ! Control round off errors by dtstep
+            !write(*,"(' rank',I4,' dt before        : ',F17.10)") nrank,dt
+            if (dt.gt.dtmax) dt = dtmax 
+            !write(*,"(' rank',I4,' dt after         : ',F17.10)") nrank,dt
+            
+            ! update time integration coefficients
+            call set_time_int_coefficient()
+         end if 
+         ! update time 
+         t = t + dt
+      end if
+   
+   endsubroutine time_stepping
+   !##################################################################
+end module time_step

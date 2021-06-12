@@ -46,6 +46,7 @@ subroutine parameter(input_i3d)
   use complex_geometry
   use decomp_2d
   use ibm_param
+  use MPI 
 
   use var, only : dphi1
 
@@ -57,7 +58,7 @@ subroutine parameter(input_i3d)
 
   character(len=80), intent(in) :: input_i3d
   real(mytype) :: theta, cfl,cf2
-  integer :: longueur ,impi,j, is, total
+  integer :: longueur ,impi,j, is, total, ierr, code
 
   NAMELIST /BasicParam/ p_row, p_col, nx, ny, nz, istret, beta, xlx, yly, zlz, &
        itype, iin, re, u1, u2, init_noise, inflow_noise, &
@@ -67,7 +68,8 @@ subroutine parameter(input_i3d)
        nclx1, nclxn, ncly1, nclyn, nclz1, nclzn, &
        ivisu, ipost, &
        gravx, gravy, gravz, &
-       icpg, icfr
+       icpg, icfr, &
+       idyndt, fdyndt, dtstep, cfl_crit, diff_crit
   NAMELIST /NumOptions/ ifirstder, isecondder, itimescheme, nu0nu, cnu, fpi2, ipinter
   NAMELIST /InOutParam/ irestart, icheckpoint, ioutput, nvisu, iprocessing
   NAMELIST /Statistics/ wrotation,spinup_time, nstat, initstat
@@ -243,6 +245,14 @@ subroutine parameter(input_i3d)
      endif
   endif
 
+  !! Control time integration scheme and dynamic time step
+  if (idyndt.eq.one) then 
+    if ((itimescheme.eq.3) .or. (itimescheme.eq.4) .or. (itimescheme.eq.7)) then 
+      print *, "!!! Dynamic time step does not work with Adam-Bashforth time integration !!!"
+      call MPI_ABORT(MPI_COMM_WORLD,code,ierr); stop
+    end if  
+  end if 
+
   if (itype.eq.itype_tbl.and.A_tr .gt. 0.0)  print *, "TBL tripping is active"
 
 #ifdef DOUBLE_PREC
@@ -304,7 +314,16 @@ subroutine parameter(input_i3d)
      print *,'==========================================================='
      write(*,"(' p_row, p_col           : ',I9, I8)") p_row, p_col
      print *,'==========================================================='
-     write(*,"(' Time step dt           : ',F17.8)") dt
+     ! Time step
+     if (idyndt.eq.one) then 
+       write(*,"(' Dynamic time step      : ',A17)") "On"
+       write(*,"(' Frequency to check     : ',I17)") fdyndt
+       write(*,"(' Smallest dt stepping   : ',F17.8)") dtstep
+       write(*,"(' Critical CFL           : ',F17.8)") cfl_crit
+       write(*,"(' Critical Diffusion num.: ',F17.8)") diff_crit
+     else
+       write(*,"(' Time step dt           : ',F17.8)") dt
+     end if
      !
      if (itimescheme.eq.1) then
        !print *,'Temporal scheme        : Forwards Euler'
@@ -555,6 +574,14 @@ subroutine parameter_defaults()
   ibirman_eos = .FALSE.
 
   primary_species = -1
+
+
+  !! Dynamic time step
+  idyndt = zero 
+  fdyndt = five
+  dtstep = one/1000_mytype
+  cfl_crit = half
+  diff_crit= two/ten
 
   !! Channel
   icpg = 0

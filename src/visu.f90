@@ -41,7 +41,8 @@ contains
   !############################################################################
   subroutine visu_init()
 
-    use param, only : ilmn, iscalar, ilast, ifirst, ioutput
+    use param, only : t, ilmn, iscalar, ilast, ifirst, ioutput, toutput, toutlast
+    use param, only : zero
     use variables, only : nx,ny,nz,numscalar,prec,beta
     use decomp_2d, only : nrank, mytype
     !
@@ -87,8 +88,9 @@ contains
     use decomp_2d, only : fine_to_coarsev
     use decomp_2d_io, only : decomp_2d_write_one
 
-    use param, only : ivisu, ioutput, nrhotime, ilmn, iscalar, iibm, istret
+    use param, only : ivisu, ioutput, toutput, toutlast, nrhotime, ilmn, iscalar, iibm, istret
     use param, only : xlx, yly, zlz
+    use param, only : zero
 
     use variables, only : derx, dery, derz
     use variables, only : ffx, ffxp, fsx, fsxp, fwx, fwxp
@@ -121,13 +123,20 @@ contains
     real(mytype), dimension(xsize(1), xsize(2), xsize(3), numscalar), intent(in) :: phi1
     integer, intent(in) :: itime
 
-    integer :: is
+    integer :: is, idsnap
     character(len=32) :: fmt2,fmt3,fmt4
     real :: tstart, tend
     !###################################################################
+    if (toutput.eq.zero) then 
+      idsnap = itime/ioutput
+    else 
+      idsnap = floor(t/toutput)
+      toutlast = idsnap*toutput
+    end if
+
     if (nrank.eq.0) then
       call cpu_time(tstart)
-      print *,'Writing snapshots =>',itime/ioutput
+      print *,'Writing snapshots =>',idsnap
     end if
     !###################################################################
     !! Write velocity
@@ -140,7 +149,7 @@ contains
     endif
     call fine_to_coarseV(1,ta1,uvisu)
 990  format('./data/ux',I5.5)
-    write(filename, 990) itime/ioutput
+    write(filename, 990) idsnap
     call decomp_2d_write_one(1,uvisu,filename,2)
 
     uvisu=0.
@@ -151,7 +160,7 @@ contains
     endif
     call fine_to_coarseV(1,ta1,uvisu)
 991  format('./data/uy',I5.5)
-    write(filename, 991) itime/ioutput
+    write(filename, 991) idsnap
     call decomp_2d_write_one(1,uvisu,filename,2)
 
     uvisu=0.
@@ -162,7 +171,7 @@ contains
     endif
     call fine_to_coarseV(1,ta1,uvisu)
 992  format('./data/uz',I5.5)
-    write(filename, 992) itime/ioutput
+    write(filename, 992) idsnap
     call decomp_2d_write_one(1,uvisu,filename,2)
     !###################################################################
     !! Write pressure
@@ -187,7 +196,7 @@ contains
 
     call fine_to_coarseV(1,ta1,uvisu)
 993  format('./data/pp',I5.5)
-    write(filename, 993) itime/ioutput
+    write(filename, 993) idsnap
     call decomp_2d_write_one(1,uvisu,filename,2)
     !###################################################################
     !! LMN - write out density
@@ -196,7 +205,7 @@ contains
       uvisu=0.
       call fine_to_coarsev(1,rho1(:,:,:,1),uvisu)
 995     format('./data/rho',I5.5)
-      write(filename, 995) itime/ioutput
+      write(filename, 995) idsnap
       call decomp_2d_write_one(1,uvisu,filename,2)
     endif
     !###################################################################
@@ -207,7 +216,7 @@ contains
       do is = 1, numscalar
         uvisu=0.
         call fine_to_coarsev(1,phi1(:,:,:,is),uvisu)
-        write(filename, 996) is, itime/ioutput
+        write(filename, 996) is, idsnap
         call decomp_2d_write_one(1,uvisu,filename,2)
       enddo
     endif
@@ -216,10 +225,10 @@ contains
     ! Write ini-file
     !###################################################################
     if (nrank==0) then
-       write(filename,"('./data/snap',I7.7,'.ini')") itime/ioutput
+       write(filename,"('./data/snap',I7.7,'.ini')") idsnap
        !
        write(fmt2,'("(A,I16)")')
-       write(fmt3,'("(A,F16.4)")')
+       write(fmt3,'("(A,F16.6)")')
        write(fmt4,'("(A,F16.12)")')
 
        open (844,file=filename,action='write',status='replace')
@@ -257,7 +266,7 @@ contains
 
     implicit none
 
-    integer :: nxmsize,nymsize,nzmsize
+    integer :: nxmsize,nymsize,nzmsize, idsnap
 
     real(mytype),dimension(xszV(1),xszV(2),xszV(3)) :: uvisu
     real(mytype),dimension(ph3%zst(1):ph3%zen(1),ph3%zst(2):ph3%zen(2),nzmsize) :: pp3
@@ -271,6 +280,13 @@ contains
     real(mytype),dimension(xsize(1),xsize(2),xsize(3)) :: tb1,di1,pre1
 
     character(len=30) filename
+
+    if (toutput.eq.zero) then 
+      idsnap = itime/ioutput
+    else 
+      idsnap = floor(t/toutput)
+      toutlast = idsnap*toutput
+    end if
 
     !WORK Z-PENCILS
     call interzpv(ta3,pp3,di3,sz,cifip6z,cisip6z,ciwip6z,cifz6,cisz6,ciwz6,&
@@ -289,14 +305,14 @@ contains
     if (save_pre.eq.1) then
        uvisu=0._mytype
        call fine_to_coarseV(1,pre1,uvisu)
-       write(filename,"('./data/pre',I4.4)") itime/ioutput
+       write(filename,"('./data/pre',I4.4)") idsnap
        call decomp_2d_write_one(1,uvisu,filename,2)
     endif
 
     if (save_prem.eq.1) then
        tb1=0._mytype
        call mean_plane_z(pre1,xsize(1),xsize(2),xsize(3),tb1(:,:,1))
-       write(filename,"('./data/prem',I4.4)") itime/ioutput
+       write(filename,"('./data/prem',I4.4)") idsnap
        call decomp_2d_write_plane(1,tb1,3,1,filename)
     endif
 
