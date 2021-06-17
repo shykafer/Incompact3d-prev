@@ -862,6 +862,8 @@ contains
        nxipif,nxfpif,nyipif,nyfpif,nzipif,nzfpif,nobjmax,npif)
     use decomp_2d
     USE decomp_2d_io
+    use variables, only : beta
+    use param, only : xlx,yly,zlz,istret
     implicit none
     !
     real(mytype),dimension(xsize(1),xsize(2),xsize(3)) :: ep1
@@ -877,9 +879,32 @@ contains
     integer,dimension(0:nobjmax,zstart(1):zend(1),zstart(2):zend(2)) :: nzipif,nzfpif
     integer                            :: npif
     integer                            :: i,j,k,count
+    character(len=32) :: fmt2,fmt3,fmt4,filename
     !###################################################################
     if (nrank==0) print *,'Writing geometry'
     call decomp_2d_write_one(1,ep1,'geometry/epsilon.dat')
+    !###################################################################
+    ! Write ini-file
+    !###################################################################
+    if (nrank==0) then
+      write(filename,"('geometry/epsilon.ini')")
+      !
+      write(fmt2,'("(A,I16)")')
+      write(fmt3,'("(A,F16.4)")')
+      write(fmt4,'("(A,F16.12)")')
+
+      open (844,file=filename,action='write',status='replace')
+      write(844,'(A)')'[domain]'
+      write(844,fmt2) 'nx=      ',nx
+      write(844,fmt2) 'ny=      ',ny
+      write(844,fmt2) 'nz=      ',nz
+      write(844,fmt2) 'istret=  ',istret
+      write(844,fmt4) 'beta=    ',beta
+      write(844,fmt3) 'Lx=      ',xlx
+      write(844,fmt3) 'Ly=      ',yly
+      write(844,fmt3) 'Lz=      ',zlz
+      close(844)
+    endif
     !###################################################################
     !x-pencil
     open(67,file='geometry/nobjx.dat',form='formatted',access='direct',recl=13)
