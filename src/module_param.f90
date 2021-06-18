@@ -312,7 +312,7 @@ module param
   integer :: ioutflow, ninflows, ntimesteps
   integer :: itime0
   integer :: iscalar,nxboite,istat,iread,iadvance_time,irotation,iibm
-  integer :: npif,izap
+  integer :: npif,izap,ianal
   integer :: ivisu, ipost, initstat
   integer :: ifilter
   real(mytype) :: xlx,yly,zlz,dx,dy,dz,dx2,dy2,dz2,t,xxk1,xxk2,t0
@@ -611,8 +611,12 @@ module simulation_stats
 end module simulation_stats
 !############################################################################
 !############################################################################
+!############################################################################
 module ibm_param
   use decomp_2d, only : mytype
-  real(mytype) :: cex,cey,ra
+  real(mytype) :: cex,cey,cez,ra,ubcx,ubcy,ubcz,rads, c_air
+  real(mytype) :: chord,thickness,omega
+  integer :: inana ! Analytical BC as Input
+  integer :: imove
 end module ibm_param
 !############################################################################

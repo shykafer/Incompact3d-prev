@@ -32,22 +32,18 @@
 
 !********************************************************************
 !
-subroutine derx_00(tx,ux,rx,sx,ffx,fsx,fwx,nx,ny,nz,npaire)
+subroutine derx_00(tx,ux,rx,sx,ffx,fsx,fwx,nx,ny,nz,npaire) 
   !
   !********************************************************************
-
   USE param
   use derivX
-  use ibm, only : lagpolx
-
+  
   implicit none
 
   integer :: nx,ny,nz,npaire,i,j,k
   real(mytype), dimension(nx,ny,nz) :: tx,ux,rx
   real(mytype), dimension(ny,nz):: sx
   real(mytype), dimension(nx):: ffx,fsx,fwx
-
-  if(iibm.eq.2) call lagpolx(ux)
 
   do k=1,nz
      do j=1,ny
@@ -91,22 +87,19 @@ end subroutine derx_00
 
 !********************************************************************
 !
-subroutine derx_11(tx,ux,rx,sx,ffx,fsx,fwx,nx,ny,nz,npaire)
+subroutine derx_11(tx,ux,rx,sx,ffx,fsx,fwx,nx,ny,nz,npaire) 
   !
   !********************************************************************
 
   USE param
   use derivX
-  use ibm, only : lagpolx
-
+  
   implicit none
 
   integer :: nx,ny,nz,npaire,i,j,k
   real(mytype), dimension(nx,ny,nz) :: tx,ux,rx
   real(mytype), dimension(ny,nz):: sx
   real(mytype), dimension(nx):: ffx,fsx,fwx
-
-  if(iibm.eq.2) call lagpolx(ux)
 
   if (npaire==1) then
      do k=1,nz
@@ -162,22 +155,19 @@ end subroutine derx_11
 
 !********************************************************************
 !
-subroutine derx_12(tx,ux,rx,sx,ffx,fsx,fwx,nx,ny,nz,npaire)
+subroutine derx_12(tx,ux,rx,sx,ffx,fsx,fwx,nx,ny,nz,npaire) 
   !
   !********************************************************************
 
   USE param
   use derivX
-  use ibm, only : lagpolx
-
+  
   implicit none
 
   integer :: nx,ny,nz,i,j,k,npaire
   real(mytype), dimension(nx,ny,nz) :: tx,ux,rx
   real(mytype), dimension(ny,nz):: sx
   real(mytype), dimension(nx):: ffx,fsx,fwx
-
-  if(iibm.eq.2) call lagpolx(ux)
 
   if (npaire==1) then
      do k=1,nz
@@ -230,22 +220,19 @@ end subroutine derx_12
 
 !********************************************************************
 !
-subroutine derx_21(tx,ux,rx,sx,ffx,fsx,fwx,nx,ny,nz,npaire)
+subroutine derx_21(tx,ux,rx,sx,ffx,fsx,fwx,nx,ny,nz,npaire) 
   !
   !********************************************************************
 
   USE param
   use derivX
-  use ibm, only : lagpolx
-
+  
   implicit none
 
   integer :: nx,ny,nz,i,j,k,npaire
   real(mytype), dimension(nx,ny,nz) :: tx,ux,rx
   real(mytype), dimension(ny,nz):: sx
   real(mytype), dimension(nx):: ffx,fsx,fwx
-
-  if(iibm.eq.2) call lagpolx(ux)
 
   if (npaire==1) then
      do k=1,nz
@@ -298,22 +285,19 @@ end subroutine derx_21
 
 !********************************************************************
 !
-subroutine derx_22(tx,ux,rx,sx,ffx,fsx,fwx,nx,ny,nz,npaire)
+subroutine derx_22(tx,ux,rx,sx,ffx,fsx,fwx,nx,ny,nz,npaire) 
   !
   !********************************************************************
 
   USE param
   use derivX
-  use ibm, only : lagpolx
-
+  
   implicit none
 
   integer :: nx,ny,nz,i,j,k,npaire
   real(mytype), dimension(nx,ny,nz) :: tx,ux,rx
   real(mytype), dimension(ny,nz):: sx
   real(mytype), dimension(nx):: ffx,fsx,fwx
-
-  if(iibm.eq.2) call lagpolx(ux)
 
   do k=1,nz
      do j=1,ny
@@ -340,14 +324,13 @@ end subroutine derx_22
 
 !********************************************************************
 !
-subroutine dery_00(ty,uy,ry,sy,ffy,fsy,fwy,ppy,nx,ny,nz,npaire)
+subroutine dery_00(ty,uy,ry,sy,ffy,fsy,fwy,ppy,nx,ny,nz,npaire) 
   !
   !********************************************************************
 
   USE param
   use derivY
-  use ibm, only : lagpoly
-
+  
   implicit none
 
   integer :: nx,ny,nz,npaire,i,j,k
@@ -355,8 +338,7 @@ subroutine dery_00(ty,uy,ry,sy,ffy,fsy,fwy,ppy,nx,ny,nz,npaire)
   real(mytype), dimension(nx,ny,nz) :: ry
   real(mytype), dimension(nx,nz)  :: sy
   real(mytype), dimension(ny) :: ffy,fsy,fwy,ppy
-
-  if(iibm.eq.2) call lagpoly(uy)
+  real(mytype)                      :: lind
 
   do k=1,nz
      do i=1,nx
@@ -436,14 +418,13 @@ end subroutine dery_00
 
 !********************************************************************
 !
-subroutine dery_11(ty,uy,ry,sy,ffy,fsy,fwy,ppy,nx,ny,nz,npaire)
+subroutine dery_11(ty,uy,ry,sy,ffy,fsy,fwy,ppy,nx,ny,nz,npaire) 
   !
   !********************************************************************
 
   USE param
   use derivY
-  use ibm, only : lagpoly
-
+  
   implicit none
 
   integer :: nx,ny,nz,i,j,k,npaire
@@ -451,8 +432,7 @@ subroutine dery_11(ty,uy,ry,sy,ffy,fsy,fwy,ppy,nx,ny,nz,npaire)
   real(mytype), dimension(nx,ny,nz) :: ry
   real(mytype), dimension(nx,nz)  :: sy
   real(mytype), dimension(ny) :: ffy,fsy,fwy,ppy
-
-  if(iibm.eq.2) call lagpoly(uy)
+  real(mytype)                      :: lind
 
   if (npaire==1) then
      do k=1,nz
@@ -556,14 +536,13 @@ end subroutine dery_11
 
 !********************************************************************
 !
-subroutine dery_12(ty,uy,ry,sy,ffy,fsy,fwy,ppy,nx,ny,nz,npaire)
+subroutine dery_12(ty,uy,ry,sy,ffy,fsy,fwy,ppy,nx,ny,nz,npaire) 
   !
   !********************************************************************
 
   USE param
   use derivY
-  use ibm, only : lagpoly
-
+  
   implicit none
 
   integer :: nx,ny,nz,i,j,k,npaire
@@ -571,8 +550,7 @@ subroutine dery_12(ty,uy,ry,sy,ffy,fsy,fwy,ppy,nx,ny,nz,npaire)
   real(mytype), dimension(nx,ny,nz) :: ry
   real(mytype), dimension(nx,nz)  :: sy
   real(mytype), dimension(ny) :: ffy,fsy,fwy,ppy
-
-  if(iibm.eq.2) call lagpoly(uy)
+  real(mytype)                      :: lind
 
   if (npaire==1) then
      do k=1,nz
@@ -673,14 +651,13 @@ end subroutine dery_12
 
 !********************************************************************
 !
-subroutine dery_21(ty,uy,ry,sy,ffy,fsy,fwy,ppy,nx,ny,nz,npaire)
+subroutine dery_21(ty,uy,ry,sy,ffy,fsy,fwy,ppy,nx,ny,nz,npaire) 
   !
   !********************************************************************
 
   USE param
   use derivY
-  use ibm, only : lagpoly
-
+  
   implicit none
 
   integer :: nx,ny,nz,i,j,k,npaire
@@ -688,8 +665,7 @@ subroutine dery_21(ty,uy,ry,sy,ffy,fsy,fwy,ppy,nx,ny,nz,npaire)
   real(mytype), dimension(nx,ny,nz) :: ry
   real(mytype), dimension(nx,nz)  :: sy
   real(mytype), dimension(ny) :: ffy,fsy,fwy,ppy
-
-  if(iibm.eq.2) call lagpoly(uy)
+  real(mytype)                      :: lind
 
   if (npaire==1) then
      do k=1,nz
@@ -790,14 +766,13 @@ end subroutine dery_21
 
 !********************************************************************
 !
-subroutine dery_22(ty,uy,ry,sy,ffy,fsy,fwy,ppy,nx,ny,nz,npaire)
+subroutine dery_22(ty,uy,ry,sy,ffy,fsy,fwy,ppy,nx,ny,nz,npaire) 
   !
   !********************************************************************
 
   USE param
   use derivY
-  use ibm, only : lagpoly
-
+  
   implicit none
 
   integer :: nx,ny,nz,i,j,k,npaire
@@ -805,8 +780,6 @@ subroutine dery_22(ty,uy,ry,sy,ffy,fsy,fwy,ppy,nx,ny,nz,npaire)
   real(mytype), dimension(nx,ny,nz) :: ry
   real(mytype), dimension(nx,nz)  :: sy
   real(mytype), dimension(ny) :: ffy,fsy,fwy,ppy
-
-  if(iibm.eq.2) call lagpoly(uy)
 
   do k=1,nz
      do i=1,nx
@@ -863,22 +836,19 @@ end subroutine dery_22
 
 !********************************************************************
 !
-subroutine derz_00(tz,uz,rz,sz,ffz,fsz,fwz,nx,ny,nz,npaire)
+subroutine derz_00(tz,uz,rz,sz,ffz,fsz,fwz,nx,ny,nz,npaire) 
   !
   !********************************************************************
 
   USE param
   use derivZ
-  use ibm, only : lagpolz
-
+  
   implicit none
 
   integer :: nx,ny,nz,npaire,i,j,k
   real(mytype), dimension(nx,ny,nz) :: tz,uz,rz
   real(mytype), dimension(nx,ny) :: sz
   real(mytype), dimension(nz) :: ffz,fsz,fwz
-
-  if(iibm.eq.2) call lagpolz(uz)
 
   do j=1,ny
      do i=1,nx
@@ -949,22 +919,19 @@ end subroutine derz_00
 
 !********************************************************************
 !
-subroutine derz_11(tz,uz,rz,sz,ffz,fsz,fwz,nx,ny,nz,npaire)
+subroutine derz_11(tz,uz,rz,sz,ffz,fsz,fwz,nx,ny,nz,npaire) 
   !
   !********************************************************************
 
   USE param
   use derivZ
-  use ibm, only : lagpolz
-
+  
   implicit none
 
   integer :: nx,ny,nz,npaire,i,j,k
   real(mytype), dimension(nx,ny,nz) :: tz,uz,rz
   real(mytype), dimension(nx,ny) :: sz
   real(mytype), dimension(nz) :: ffz,fsz,fwz
-
-  if(iibm.eq.2) call lagpolz(uz)
 
   if (npaire==1) then
      do j=1,ny
@@ -1060,22 +1027,19 @@ end subroutine derz_11
 
 !********************************************************************
 !
-subroutine derz_12(tz,uz,rz,sz,ffz,fsz,fwz,nx,ny,nz,npaire)
+subroutine derz_12(tz,uz,rz,sz,ffz,fsz,fwz,nx,ny,nz,npaire) 
   !
   !********************************************************************
 
   USE param
   use derivZ
-  use ibm, only : lagpolz
-
+  
   implicit none
 
   integer :: nx,ny,nz,npaire,i,j,k
   real(mytype), dimension(nx,ny,nz) :: tz,uz,rz
   real(mytype), dimension(nx,ny) :: sz
   real(mytype), dimension(nz) :: ffz,fsz,fwz
-
-  if(iibm.eq.2) call lagpolz(uz)
 
   if (npaire==1) then
      do j=1,ny
@@ -1170,22 +1134,19 @@ end subroutine derz_12
 
 !********************************************************************
 !
-subroutine derz_21(tz,uz,rz,sz,ffz,fsz,fwz,nx,ny,nz,npaire)
+subroutine derz_21(tz,uz,rz,sz,ffz,fsz,fwz,nx,ny,nz,npaire) 
   !
   !********************************************************************
 
   USE param
   use derivZ
-  use ibm, only : lagpolz
-
+  
   implicit none
 
   integer :: nx,ny,nz,npaire,i,j,k
   real(mytype), dimension(nx,ny,nz) :: tz,uz,rz
   real(mytype), dimension(nx,ny) :: sz
   real(mytype), dimension(nz) :: ffz,fsz,fwz
-
-  if(iibm.eq.2) call lagpolz(uz)
 
   if (npaire==1) then
      do j=1,ny
@@ -1280,22 +1241,19 @@ end subroutine derz_21
 
 !********************************************************************
 !
-subroutine derz_22(tz,uz,rz,sz,ffz,fsz,fwz,nx,ny,nz,npaire)
+subroutine derz_22(tz,uz,rz,sz,ffz,fsz,fwz,nx,ny,nz,npaire) 
   !
   !********************************************************************
 
   USE param
   use derivZ
-  use ibm, only : lagpolz
-
+  
   implicit none
 
   integer :: nx,ny,nz,npaire,i,j,k
   real(mytype), dimension(nx,ny,nz) :: tz,uz,rz
   real(mytype), dimension(nx,ny) :: sz
   real(mytype), dimension(nz) :: ffz,fsz,fwz
-
-  if(iibm.eq.2) call lagpolz(uz)
 
   do j=1,ny
      do i=1,nx
@@ -1344,22 +1302,19 @@ end subroutine derz_22
 
 !********************************************************************
 !
-subroutine derxx_00(tx,ux,rx,sx,sfx,ssx,swx,nx,ny,nz,npaire)
+subroutine derxx_00(tx,ux,rx,sx,sfx,ssx,swx,nx,ny,nz,npaire) 
   !
   !********************************************************************
 
   USE param
   use derivX
-  use ibm, only : lagpolx
-
+  
   implicit none
 
   integer :: nx,ny,nz,npaire,i,j,k
   real(mytype), dimension(nx,ny,nz) :: tx,ux,rx
   real(mytype), dimension(ny,nz) :: sx
   real(mytype),  dimension(nx):: sfx,ssx,swx
-
-  if(iibm.eq.2) call lagpolx(ux)
 
   do k=1,nz
      do j=1,ny
@@ -1469,22 +1424,20 @@ end subroutine derxx_00
 
 !********************************************************************
 !
-subroutine derxx_11(tx,ux,rx,sx,sfx,ssx,swx,nx,ny,nz,npaire)
+subroutine derxx_11(tx,ux,rx,sx,sfx,ssx,swx,nx,ny,nz,npaire) 
   !
   !********************************************************************
 
   USE param
   use derivX
-  use ibm, only : lagpolx
-
+  
   implicit none
 
   integer :: nx,ny,nz,npaire,i,j,k
   real(mytype), dimension(nx,ny,nz) :: tx,ux,rx
   real(mytype), dimension(ny,nz) :: sx
   real(mytype),  dimension(nx):: sfx,ssx,swx
-
-  if(iibm.eq.2) call lagpolx(ux)
+  real(mytype)                      :: lind
 
   if (npaire==1) then
      do k=1,nz
@@ -1652,22 +1605,20 @@ end subroutine derxx_11
 
 !********************************************************************
 !
-subroutine derxx_12(tx,ux,rx,sx,sfx,ssx,swx,nx,ny,nz,npaire)
+subroutine derxx_12(tx,ux,rx,sx,sfx,ssx,swx,nx,ny,nz,npaire) 
   !
   !********************************************************************
 
   USE param
   use derivX
-  use ibm, only : lagpolx
-
+  
   implicit none
 
   integer :: nx,ny,nz,npaire,i,j,k
   real(mytype), dimension(nx,ny,nz) :: tx,ux,rx
   real(mytype), dimension(ny,nz) :: sx
   real(mytype),  dimension(nx):: sfx,ssx,swx
-
-  if(iibm.eq.2) call lagpolx(ux)
+  real(mytype)                      :: lind
 
   if (npaire==1) then
      do k=1,nz
@@ -1806,22 +1757,20 @@ end subroutine derxx_12
 
 !********************************************************************
 !
-subroutine derxx_21(tx,ux,rx,sx,sfx,ssx,swx,nx,ny,nz,npaire)
+subroutine derxx_21(tx,ux,rx,sx,sfx,ssx,swx,nx,ny,nz,npaire) 
   !
   !********************************************************************
 
   USE param
   use derivX
-  use ibm, only : lagpolx
-
+  
   implicit none
 
   integer :: nx,ny,nz,npaire,i,j,k
   real(mytype), dimension(nx,ny,nz) :: tx,ux,rx
   real(mytype), dimension(ny,nz) :: sx
   real(mytype),  dimension(nx):: sfx,ssx,swx
-
-  if(iibm.eq.2) call lagpolx(ux)
+  real(mytype)                      :: lind
 
   if (npaire==1) then
      do k=1,nz
@@ -1960,22 +1909,19 @@ end subroutine derxx_21
 
 !********************************************************************
 !
-subroutine derxx_22(tx,ux,rx,sx,sfx,ssx,swx,nx,ny,nz,npaire)
+subroutine derxx_22(tx,ux,rx,sx,sfx,ssx,swx,nx,ny,nz,npaire) 
   !
   !********************************************************************
-
   USE param
   use derivX
-  use ibm, only : lagpolx
-
+  
   implicit none
 
   integer :: nx,ny,nz,npaire,i,j,k
   real(mytype), dimension(nx,ny,nz) :: tx,ux,rx
   real(mytype), dimension(ny,nz) :: sx
   real(mytype),  dimension(nx):: sfx,ssx,swx
-
-  if(iibm.eq.2) call lagpolx(ux)
+  real(mytype)                      :: lind
 
   do k=1,nz
      do j=1,ny
@@ -2032,22 +1978,20 @@ end subroutine derxx_22
 
 !********************************************************************
 !
-subroutine deryy_00(ty,uy,ry,sy,sfy,ssy,swy,nx,ny,nz,npaire)
+subroutine deryy_00(ty,uy,ry,sy,sfy,ssy,swy,nx,ny,nz,npaire) 
   !
   !********************************************************************
 
   USE param
   use derivY
-  use ibm, only : lagpoly
-
+  
   implicit none
 
   integer :: nx,ny,nz,npaire,i,j,k
   real(mytype), dimension(nx,ny,nz) :: ty,uy,ry
   real(mytype), dimension(nx,nz) :: sy
   real(mytype), dimension(ny) :: sfy,ssy,swy
-
-  if(iibm.eq.2) call lagpoly(uy)
+  real(mytype)                      :: lind
 
   do k=1,nz
      do i=1,nx
@@ -2144,7 +2088,7 @@ subroutine deryy_00(ty,uy,ry,sy,sfy,ssy,swy,nx,ny,nz,npaire)
         ry(i,ny  ,k)=alsajy
      enddo
   enddo
-  if (iimplicit.ge.1) return
+  if (itimescheme.eq.7) return
   do k=1,nz
      do j=2,ny
         do i=1,nx
@@ -2185,22 +2129,20 @@ end subroutine deryy_00
 
 !********************************************************************
 !
-subroutine deryy_11(ty,uy,ry,sy,sfy,ssy,swy,nx,ny,nz,npaire)
+subroutine deryy_11(ty,uy,ry,sy,sfy,ssy,swy,nx,ny,nz,npaire) 
   !
   !********************************************************************
 
   USE param
   use derivY
-  use ibm, only : lagpoly
-
+  
   implicit none
 
   integer :: nx,ny,nz,npaire,i,j,k
   real(mytype), dimension(nx,ny,nz) :: ty,uy,ry
   real(mytype), dimension(nx,nz) :: sy
   real(mytype), dimension(ny) :: sfy,ssy,swy
-
-  if(iibm.eq.2) call lagpoly(uy)
+  real(mytype)                      :: lind
 
   if (npaire==1) then
      do k=1,nz
@@ -2289,7 +2231,7 @@ subroutine deryy_11(ty,uy,ry,sy,sfy,ssy,swy,nx,ny,nz,npaire)
                 -uy(i,ny  ,k)+uy(i,ny-4,k))
         enddo
      enddo
-     if (iimplicit.ge.1) return
+     if (itimescheme.eq.7) return
      do k=1,nz
         do j=2,ny
            do i=1,nx
@@ -2383,7 +2325,7 @@ subroutine deryy_11(ty,uy,ry,sy,sfy,ssy,swy,nx,ny,nz,npaire)
            ty(i,ny  ,k)=zero
         enddo
      enddo
-     if (iimplicit.ge.1) return
+     if (itimescheme.eq.7) return
      do k=1,nz
         do j=2,ny
            do i=1,nx
@@ -2409,22 +2351,20 @@ end subroutine deryy_11
 
 !********************************************************************
 !
-subroutine deryy_12(ty,uy,ry,sy,sfy,ssy,swy,nx,ny,nz,npaire)
+subroutine deryy_12(ty,uy,ry,sy,sfy,ssy,swy,nx,ny,nz,npaire) 
   !
   !********************************************************************
 
   USE param
   use derivY
-  use ibm, only : lagpoly
-
+  
   implicit none
 
   integer :: nx,ny,nz,npaire,i,j,k
   real(mytype), dimension(nx,ny,nz) :: ty,uy,ry
   real(mytype), dimension(nx,nz) :: sy
   real(mytype), dimension(ny) :: sfy,ssy,swy
-
-  if(iibm.eq.2) call lagpoly(uy)
+  real(mytype)                      :: lind
 
   if (npaire==1) then
      do k=1,nz
@@ -2495,7 +2435,7 @@ subroutine deryy_12(ty,uy,ry,sy,sfy,ssy,swy,nx,ny,nz,npaire)
                 +csny*uy(i,ny-2,k)+dsny*uy(i,ny-3,k)
         enddo
      enddo
-     if (iimplicit.ge.1) return
+     if (itimescheme.eq.7) return
      do k=1,nz
         do j=2,ny
            do i=1,nx
@@ -2578,7 +2518,7 @@ subroutine deryy_12(ty,uy,ry,sy,sfy,ssy,swy,nx,ny,nz,npaire)
                 +csny*uy(i,ny-2,k)+dsny*uy(i,ny-3,k)
         enddo
      enddo
-     if (iimplicit.ge.1) return
+     if (itimescheme.eq.7) return
      do k=1,nz
         do j=2,ny
            do i=1,nx
@@ -2605,22 +2545,20 @@ end subroutine deryy_12
 
 !********************************************************************
 !
-subroutine deryy_21(ty,uy,ry,sy,sfy,ssy,swy,nx,ny,nz,npaire)
+subroutine deryy_21(ty,uy,ry,sy,sfy,ssy,swy,nx,ny,nz,npaire) 
   !
   !********************************************************************
 
   USE param
   use derivY
-  use ibm, only : lagpoly
-
+  
   implicit none
 
   integer :: nx,ny,nz,npaire,i,j,k
   real(mytype), dimension(nx,ny,nz) :: ty,uy,ry
   real(mytype), dimension(nx,nz) :: sy
   real(mytype), dimension(ny) :: sfy,ssy,swy
-
-  if(iibm.eq.2) call lagpoly(uy)
+  real(mytype)                      :: lind
 
   if (npaire==1) then
      do k=1,nz
@@ -2691,7 +2629,7 @@ subroutine deryy_21(ty,uy,ry,sy,sfy,ssy,swy,nx,ny,nz,npaire)
                 -uy(i,ny  ,k)+uy(i,ny-4,k))
         enddo
      enddo
-     if (iimplicit.ge.1) return
+     if (itimescheme.eq.7) return
      do k=1,nz
         do j=2,ny
            do i=1,nx
@@ -2774,7 +2712,7 @@ subroutine deryy_21(ty,uy,ry,sy,sfy,ssy,swy,nx,ny,nz,npaire)
            ty(i,ny  ,k)=zero
         enddo
      enddo
-     if (iimplicit.ge.1) return
+     if (itimescheme.eq.7) return
      do k=1,nz
         do j=2,ny
            do i=1,nx
@@ -2801,22 +2739,20 @@ end subroutine deryy_21
 
 !********************************************************************
 !
-subroutine deryy_22(ty,uy,ry,sy,sfy,ssy,swy,nx,ny,nz,npaire)
+subroutine deryy_22(ty,uy,ry,sy,sfy,ssy,swy,nx,ny,nz,npaire) 
   !
   !********************************************************************
 
   USE param
   use derivY
-  use ibm, only : lagpoly
-
+  
   implicit none
 
   integer :: nx,ny,nz,npaire,i,j,k
   real(mytype), dimension(nx,ny,nz) :: ty,uy,ry
   real(mytype), dimension(nx,nz) :: sy
   real(mytype), dimension(ny) :: sfy,ssy,swy
-
-  if(iibm.eq.2) call lagpoly(uy)
+  real(mytype)                      :: lind
 
   do k=1,nz
      do i=1,nx
@@ -2868,7 +2804,7 @@ subroutine deryy_22(ty,uy,ry,sy,sfy,ssy,swy,nx,ny,nz,npaire)
              +csny*uy(i,ny-2,k)+dsny*uy(i,ny-3,k)
      enddo
   enddo
-  if (iimplicit.ge.1) return
+  if (itimescheme.eq.7) return
   do k=1,nz
      do j=2,ny
         do i=1,nx
@@ -2893,22 +2829,20 @@ end subroutine deryy_22
 
 !********************************************************************
 !
-subroutine derzz_00(tz,uz,rz,sz,sfz,ssz,swz,nx,ny,nz,npaire)
+subroutine derzz_00(tz,uz,rz,sz,sfz,ssz,swz,nx,ny,nz,npaire) 
   !
   !********************************************************************
 
   USE param
   use derivZ
-  use ibm, only : lagpolz
-
+  
   implicit none
 
   integer :: nx,ny,nz,npaire,i,j,k
   real(mytype), dimension(nx,ny,nz) :: tz,uz,rz
   real(mytype), dimension(nx,ny) :: sz
   real(mytype), dimension(nz) :: sfz,ssz,swz
-
-  if(iibm.eq.2) call lagpolz(uz)
+  real(mytype)                      :: lind
 
   do j=1,ny
      do i=1,nx
@@ -3045,22 +2979,20 @@ end subroutine derzz_00
 
 !********************************************************************
 !
-subroutine derzz_11(tz,uz,rz,sz,sfz,ssz,swz,nx,ny,nz,npaire)
+subroutine derzz_11(tz,uz,rz,sz,sfz,ssz,swz,nx,ny,nz,npaire) 
   !
   !********************************************************************
 
   USE param
   use derivZ
-  use ibm, only : lagpolz
-
+  
   implicit none
 
   integer :: nx,ny,nz,npaire,i,j,k
   real(mytype), dimension(nx,ny,nz) :: tz,uz,rz
   real(mytype), dimension(nx,ny) :: sz
   real(mytype), dimension(nz) :: sfz,ssz,swz
-
-  if(iibm.eq.2) call lagpolz(uz)
+  real(mytype)                      :: lind
 
   if (npaire==1) then
      do j=1,ny
@@ -3268,22 +3200,20 @@ end subroutine derzz_11
 
 !********************************************************************
 !
-subroutine derzz_12(tz,uz,rz,sz,sfz,ssz,swz,nx,ny,nz,npaire)
+subroutine derzz_12(tz,uz,rz,sz,sfz,ssz,swz,nx,ny,nz,npaire) 
   !
   !********************************************************************
 
   USE param
   use derivZ
-  use ibm, only : lagpolz
-
+  
   implicit none
 
   integer :: nx,ny,nz,npaire,i,j,k
   real(mytype), dimension(nx,ny,nz) :: tz,uz,rz
   real(mytype), dimension(nx,ny) :: sz
   real(mytype), dimension(nz) :: sfz,ssz,swz
-
-  if(iibm.eq.2) call lagpolz(uz)
+  real(mytype)                      :: lind
 
   if (npaire==1) then
      do j=1,ny
@@ -3462,22 +3392,20 @@ end subroutine derzz_12
 
 !********************************************************************
 !
-subroutine derzz_21(tz,uz,rz,sz,sfz,ssz,swz,nx,ny,nz,npaire)
+subroutine derzz_21(tz,uz,rz,sz,sfz,ssz,swz,nx,ny,nz,npaire) 
   !
   !********************************************************************
 
   USE param
   use derivZ
-  use ibm, only : lagpolz
-
+  
   implicit none
 
   integer :: nx,ny,nz,npaire,i,j,k
   real(mytype), dimension(nx,ny,nz) :: tz,uz,rz
   real(mytype), dimension(nx,ny) :: sz
   real(mytype), dimension(nz) :: sfz,ssz,swz
-
-  if(iibm.eq.2) call lagpolz(uz)
+  real(mytype)                      :: lind
 
   if (npaire==1) then
      do j=1,ny
@@ -3662,16 +3590,14 @@ subroutine derzz_22(tz,uz,rz,sz,sfz,ssz,swz,nx,ny,nz,npaire)
 
   USE param
   use derivZ
-  use ibm, only : lagpolz
-
+  
   implicit none
 
   integer :: nx,ny,nz,npaire,i,j,k
   real(mytype), dimension(nx,ny,nz) :: tz,uz,rz
   real(mytype), dimension(nx,ny) :: sz
   real(mytype), dimension(nz) :: sfz,ssz,swz
-
-  if(iibm.eq.2) call lagpolz(uz)
+  real(mytype)                      :: lind
 
   do j=1,ny
      do i=1,nx
@@ -3767,8 +3693,6 @@ subroutine derxvp(tx,ux,rx,sx,cfx6,csx6,cwx6,nx,nxm,ny,nz,npaire)
   real(mytype), dimension(ny,nz) :: sx
   real(mytype), dimension(nxm) :: cfx6,csx6,cwx6
   integer :: i,j,k,nyz
-
-
 
   nyz=ny*nz
 

@@ -81,7 +81,8 @@ subroutine parameter(input_i3d)
   NAMELIST /LESModel/ jles, smagcst, smagwalldamp, nSmag, walecst, maxdsmagcst, iwall
   NAMELIST /WallModel/ smagwalldamp
   NAMELIST /Tripping/ itrip,A_tr,xs_tr_tbl,ys_tr_tbl,ts_tr_tbl,x0_tr_tbl
-  NAMELIST /ibmstuff/ cex,cey,ra,nobjmax,nraf,nvol,iforces
+  NAMELIST /ibmstuff/ cex,cey,ra,nobjmax,nraf,nvol,iforces,npif,izap,ianal,&
+            imove, thickness, chord, omega ,ubcx,ubcy,ubcz,rads
   NAMELIST /ForceCVs/ xld, xrd, yld, yud
   NAMELIST /LMN/ dens1, dens2, prandtl, ilmn_bound, ivarcoeff, ilmn_solve_temp, &
        massfrac, mol_weight, imultispecies, primary_species, &

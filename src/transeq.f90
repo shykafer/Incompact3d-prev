@@ -100,6 +100,8 @@ contains
     use var, only : sgsx1,sgsy1,sgsz1
     use var, only : FTx, FTy, FTz, Fdiscx, Fdiscy, Fdiscz
     use les, only : compute_SGS
+    use ibm, only : lagpolx,lagpoly,lagpolz, cubsplx,cubsply,cubsplz
+    use ibm_param, only : ubcx,ubcy,ubcz
 
     use case, only : momentum_forcing
 
@@ -116,6 +118,17 @@ contains
 
 
     integer :: i,j,k,is
+    
+    ! IBM - ToDo: create method to perform lagpol in one call
+    if(iibm.eq.two) then
+       call lagpolx(ux1)
+       call lagpolx(uy1)
+       call lagpolx(uz1)
+    else if (iibm.eq.three) then
+      call cubsplx(ux1,ubcx)
+      call cubsplx(uy1,ubcy)
+      call cubsplx(uz1,ubcz)
+    endif
 
     !SKEW SYMMETRIC FORM
     !WORK X-PENCILS
@@ -167,6 +180,17 @@ contains
        rho2(:,:,:) = one
     endif
 
+    ! IBM - ToDo: create method to perform lagpol in one call
+    if(iibm.eq.two) then
+      call lagpoly(ux2)
+      call lagpoly(uy2)
+      call lagpoly(uz2)
+    else if (iibm.eq.three) then
+      call cubsply(ux2,ubcx)
+      call cubsply(uy2,ubcy)
+      call cubsply(uz2,ubcz)
+    endif
+
     !WORK Y-PENCILS
     if (ilmn) then
       td2(:,:,:) = rho2(:,:,:) * ux2(:,:,:) * uy2(:,:,:)
@@ -207,6 +231,17 @@ contains
     call transpose_y_to_z(ux2,ux3)
     call transpose_y_to_z(uy2,uy3)
     call transpose_y_to_z(uz2,uz3)
+
+    ! IBM - ToDo: create method to perform lagpol in one call
+    if(iibm.eq.two) then
+      call lagpolz(ux3)
+      call lagpolz(uy3)
+      call lagpolz(uz3)
+    else if (iibm.eq.three) then
+      call cubsplz(ux3,ubcx)
+      call cubsplz(uy3,ubcy)
+      call cubsplz(uz3,ubcz)
+    endif
 
     !WORK Z-PENCILS
     if (ilmn) then
@@ -723,6 +758,7 @@ contains
     use variables
     use decomp_2d
     use case, only : scalar_forcing
+    use ibm, only : lagpolx,lagpoly,lagpolz, cubsplx,cubsply,cubsplz
 
     use var, only : ta1,tb1,tc1,td1,di1
     use var, only : rho2,uy2,ta2,tb2,tc2,td2,te2,di2
@@ -759,6 +795,13 @@ contains
     endif
 
     xalpha = xnu/schmidt
+    
+    ! IBM - ToDo: create method to perform lagpol in one call
+    if(iibm.eq.two) then 
+       call lagpolx(phi1)
+    else if (iibm.eq.three) then 
+       call cubsplx(phi1,zero)
+    end if 
 
     !X PENCILS
     if (skewsc) ta1(:,:,:) = ux1(:,:,:) * phi1(:,:,:)
@@ -789,6 +832,13 @@ contains
     ta1(:,:,:) = xalpha*ta1(:,:,:) - tb1(:,:,:)
 
     call transpose_x_to_y(phi1(:,:,:),td2(:,:,:))
+
+    ! IBM - ToDo: create method to perform lagpol in one call
+    if(iibm.eq.2) then 
+       call lagpoly(td2)
+    else if (iibm.eq.three) then 
+       call cubsply(td2,zero)
+    end if 
 
     !Y PENCILS
     if (skewsc) tb2(:,:,:) = uy2(:,:,:) * td2(:,:,:)
@@ -852,7 +902,14 @@ contains
     tc2(:,:,:) = xalpha*ta2(:,:,:) - tb2(:,:,:)
 
     call transpose_y_to_z(td2(:,:,:),td3(:,:,:))
-
+    
+    ! IBM - ToDo: create method to perform lagpol in one call
+    if(iibm.eq.two) then 
+       call lagpolz(td3)
+    else if(iibm.eq.three) then 
+       call cubsplz(td3,zero)
+    end if 
+    
     !Z PENCILS
     if (skewsc) ta3(:,:,:) = uz3(:,:,:) * td3(:,:,:)
     if (evensc) then
